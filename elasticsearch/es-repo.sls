@@ -19,4 +19,10 @@ command-import-es-signing-key:
     - name: rpm --import {{ config.elasticsearch.repo_gpgkey }}
     - onchanges:
       - pkgrepo: elasticsearch_repo
+{% elif salt.grains.get('os_family') == 'Debian' %}
+elasticsearch_repo:
+  pkgrepo.managed:
+    - name: {{ config.elasticsearch.debrepo_baseurl }}
+    - key_url: {{ config.elasticsearch.debrepo_keyurl }}
+    - refresh_db: True
 {% endif %}

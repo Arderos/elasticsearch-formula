@@ -1,5 +1,5 @@
 {% from "elasticsearch/map.jinja" import host_lookup as config with context -%}
-
+{% if grains['os_family'] == 'RedHat' %}
 # Disable transparent hugepages
 elasticesearch-/etc/default/grub:
   file.replace:
@@ -38,59 +38,33 @@ command-set-elasticsearch-tuned-profile:
     - require:
       - file: /etc/tuned/elasticsearch/tuned.conf
     - unless: tuned-adm active |grep elasticsearch
+{% elif grains['os_family'] == 'Debian' %}
+# Disable transparent hugepages
+elasticesearch-/etc/default/grub:
+  file.replace:
+    - name: /etc/default/grub
+    - pattern: GRUB_CMDLINE_LINUX_DEFAULT="
+    - repl: 'GRUB_CMDLINE_LINUX_DEFAULT="transparent_hugepage=never '
+    - unless: grep "transparent_hugepage" /etc/default/grub
+command-rebuild-es-grub-cfg:
+  cmd.run:
+    - name: update-grub2
+    - onchanges:
+      - file: /etc/default/grub
 
-# Create kernel override config for swappiness
-# max_map_count, and ipv6 support
-/etc/sysctl.d/10-ES_KernelOverride.conf:
-  file.managed:
-    - user: root
-    - group: root
-    - mode: '0644'
+{% endif %}
 
 # Set kernel override for vm.swappiness
 sysctl-set-swappiness:
   sysctl.present:
     - name: vm.swappiness
     - value: {{ config.kernel.vm_swappiness }}
-    - config: /etc/sysctl.d/10-ES_KernelOverride.conf
-    - require:
-      - file: /etc/sysctl.d/10-ES_KernelOverride.conf 
 
 # Set kernel override for vm.max_map_count
 sysctl-set-max-map-count:
   sysctl.present:
     - name: vm.max_map_count
     - value: {{ config.kernel.vm_max_map_count }}
-    - config: /etc/sysctl.d/10-ES_KernelOverride.conf
-    - require:
-      - file: /etc/sysctl.d/10-ES_KernelOverride.conf 
-
-# Set kernel override for ipv6 all
-sysctl-set-ipv6-all-disable-ipv6:
-  sysctl.present:
-    - name: net.ipv6.conf.all.disable_ipv6
-    - value: 1
-    - config: /etc/sysctl.d/10-ES_KernelOverride.conf
-    - require:
-      - file: /etc/sysctl.d/10-ES_KernelOverride.conf 
-
-# Set kernel override for ipv6 default
-sysctl-set-ipv6-default-disable-ipv6:
-  sysctl.present:
-    - name: net.ipv6.conf.default.disable_ipv6
-    - value: 1
-    - config: /etc/sysctl.d/10-ES_KernelOverride.conf
-    - require:
-      - file: /etc/sysctl.d/10-ES_KernelOverride.conf 
-
-# Set kernel override for ipv6 lo
-sysctl-set-ipv6-lo-disable-ipv6:
-  sysctl.present:
-    - name: net.ipv6.conf.lo.disable_ipv6
-    - value: 1
-    - config: /etc/sysctl.d/10-ES_KernelOverride.conf
-    - require:
-      - file: /etc/sysctl.d/10-ES_KernelOverride.conf 
 
 # Set resource limits for the elasticsearch user
 /etc/security/limits.d/90-elasticsearch.conf:

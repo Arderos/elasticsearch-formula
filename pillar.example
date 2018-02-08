@@ -18,32 +18,23 @@ elasticsearch:
       repo_version: '5.x' # Version and baseurl both change: 2.x and 2.x/centos or 5.x and 5.x/yum
       repo_baseurl: 'https://artifacts.elastic.co/packages/5.x/yum'
       repo_gpgkey: 'https://artifacts.elastic.co/GPG-KEY-elasticsearch'
+      debrepo_baseurl: 'deb https://artifacts.elastic.co/packages/5.x/apt stable main'
+      debrepo_keyurl: 'https://artifacts.elastic.co/GPG-KEY-elasticsearch'
       restart_service_after_state_change: 'true'
       unicast_hosts: '["esnode00","esnode01","esnode02"]'  # Make this the same as your list of masters
-      http_allowed_sources:                                # Sources to allow HTTP connections from
-        - name: 'esnode00'                                 # Arbitrary name (using node name is a good default)
-          ip: '192.168.2.20'                               # IP address
-          mask: '/32'                                      # Subnet Mask
-          port: '9200'                                     # Port for http access
-        - name: 'esnode01'
-          ip: '192.168.2.21'
-          mask: '/32'
-          port: '9200'
-        - name: 'esnode02'
-          ip: '192.168.2.22'
-          mask: '/32'
-          port: '9200'
-      sources:                                             # Sources to allow ES transport connections from
-        - name: 'esnode00'                                 # Arbitrary name (using node name is a good default)
-          ip: '192.168.2.20'                               # IP address
-          mask: '/32'                                      # Subnet Mask
-          port: '9300'                                     # Port for es transport access
-        - name: 'esnode01'
-          ip: '192.168.2.21'
-          mask: '/32'
-          port: '9300'
-        - name: 'esnode02'
-          ip: '192.168.2.22'
-          mask: '/32'
-          port: '9300'
+      mounts:
+        create_lvm: 'false'
+        lvm_pv_name: '/dev/sdc'
+        lvm_vg_name: 'graylog'
+        lvm_data_lv_name: 'es_data'
+        lvm_data_lv_size: '20G'
+        lvm_archive_lv_name: 'es_archive'
+        lvm_archive_lv_size: '20G'
+        data_dir_name: '/elasticsearch/data'
+        data_mount_fstype: 'ext4'
+        data_mount_device: '/dev/mapper/graylog-es_data'
+        archive_dir_name: '/elasticsearch/archive'
+        use_archive_dir: 'false'
+        archive_mount_fstype: 'ext4'
+        archive_mount_device: '/dev/mapper/graylog-es_archive'
 

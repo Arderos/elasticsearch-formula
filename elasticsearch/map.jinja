@@ -7,9 +7,11 @@
       'repo_version': '2.x',
       'repo_baseurl': 'https://packages.elastic.co/elasticsearch/2.x/centos',
       'repo_gpgkey': 'https://packages.elastic.co/GPG-KEY-elasticsearch',
+      'debrepo_baseurl': 'deb https://packages.elastic.co/elasticsearch/2.x/debian stable main',
+      'debrepo_keyurl': 'https://packages.elastic.co/GPG-KEY-elasticsearch',
       'restart_service_after_state_change': 'true',
       'cluster_name': 'graylog',
-      'master_node': 'false',
+      'master_node': 'true',
       'data_node': 'true',
       'log_path': '/var/log/elasticsearch',
       'data_path': '/elasticsearch/data',
@@ -24,16 +26,20 @@
       'sources': [],
       'mounts':
       {
-        'create_data_dir': 'true',
+        'create_lvm': 'false',
+        'lvm_pv_name': '/dev/sdc',
+        'lvm_vg_name': 'graylog',
+        'lvm_data_lv_name': 'es_data',
+        'lvm_data_lv_size': '20G',
+        'lvm_archive_lv_name': 'es-archive',
+        'lvm_archive_lv_size': '20G',
         'data_dir_name': '/elasticsearch/data',
-        'use_data_mount_device': 'false',
-        'data_mount_fstype': 'xfs',
-        'data_mount_device': '/dev/mapper/vg_data-lv_data',
-        'create_archive_dir': 'true',
+        'data_mount_fstype': 'ext4',
+        'data_mount_device': '/dev/mapper/es-data',
         'archive_dir_name': '/elasticsearch/archive',
-        'use_archive_mount_device': 'false',
-        'archive_mount_fstype': 'xfs',
-        'archive_mount_device': '/dev/mapper/vg_archive-lv_archive',
+        'use_archive_dir': 'false',
+        'archive_mount_fstype': 'ext4',
+        'archive_mount_device': '/dev/mapper/es-archive',
       },
     },
   },
@@ -70,25 +76,32 @@
 {% set kernel = {
   'kernel':
   {
-    'vm_swappiness': '10',
+    'vm_swappiness': '0',
     'vm_max_map_count': '262144',
   },
 } %}
 
-# Configure firewall from pillar
-{% set firewall = {
-  'firewall':
-  {
-    'firewalld':
+# Configure java package name
+{% set java_map = {
+    'Debian':
     {
-      'status': salt['pillar.get']('firewall:firewalld:status', 'InActive'),
+      'elasticsearch_java':
+      {
+        'java_pkg_name': 'openjdk-8-jdk-headless',
+      },
     },
-  },
+    'RedHat':
+    {
+      'elasticsearch_java':
+      {
+        'java_pkg_name': 'java-1.8.0-openjdk-headless',
+      },
+    },
 } %}
-
+{% set java = java_map.get(grains.os_family) %}
+{% do default_config.update(java) %}
 # Update the default config with kernel and firewall config
 {% do default_config.update(kernel) %}
-{% do default_config.update(firewall) %}
 
 # Merge the default settings with pillar data
 {% set host_lookup = salt['pillar.get']('elasticsearch:lookup', default=default_config, merge=True) %}
