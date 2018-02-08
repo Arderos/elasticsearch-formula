@@ -10,6 +10,7 @@ elasticsearch:
       debrepo_keyurl: 'https://artifacts.elastic.co/GPG-KEY-elasticsearch'
       restart_service_after_state_change: 'true'
       unicast_hosts: '["esnode00","esnode01","esnode02"]'  # Make this the same as your list of masters
+      minimum_masters: '2'
       mounts:
         create_lvm: 'false'
         lvm_pv_name: '/dev/sdc'
