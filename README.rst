@@ -2,7 +2,7 @@
 elasticsearch-formula
 ================
 
-A saltstack formula to manage elasticsearch 2.x and 5.x clusters on RHEL based systems.
+A saltstack formula to manage elasticsearch 2.x and 5.x clusters on RHEL and Debian based systems.
 
 .. note::
 
@@ -17,7 +17,7 @@ Available states
 
 ``es-repo``
 ------------
-Manage repo file on RHEL/CentOS 7 systems.
+Manage repo file on RHEL/CentOS 7/Debian/Ubuntu systems.
 
 ``es-package``
 ------------
@@ -25,7 +25,7 @@ Install elasticsearch and additional prerequisite packages
 
 ``es-mount``
 ------------
-Optionally configure non-statndard folders and mount additional devices if used
+Optionally configure non-statndard folders, create LVM PG/VG/LV and mount additional devices if used
  
 ``es-config``
 ------------
@@ -35,11 +35,6 @@ Manage configuration file placement
 ------------
 Apply kernal tweaks and system tuning options
 
-``es-firewalld``
-------------
-Optionally setup firewalld rules for elasticsearch transport and disable iptables
-Requires the firewall-formula or another method of managing the firewalld service
-
 ``es-service``
 ------------
-Sets up the elasticsearch service and makes sure it is running on RHEL/CentOS 7 systems.
+Sets up the elasticsearch service and makes sure it is running on RHEL/CentOS 7/Debian/Ubuntu systems.
