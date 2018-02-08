@@ -2,6 +2,17 @@
 elasticsearch-formula
 ================
 
+This formula is a fork of `alias454's work <https://github.com/alias454/elasticsearch-formula>`_.
+
+Here is the list of changes:
+================
+
+- The formula is now compatible with Debian-based distros
+- It is now possible to create LVM structure and format the target volumes (disabled by default)
+- Firewalld-related code was removed as I believe it is out of scope of this formula
+- Sysctl-related code is simplified as Salt would automatically create override files by default
+- Minimum master nodes is now 2 by default (configurable) and master role is set to true by default to facilitate correct cluster setup
+
 A saltstack formula to manage elasticsearch 2.x and 5.x clusters on RHEL and Debian based systems.
 
 .. note::
