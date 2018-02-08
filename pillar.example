@@ -1,19 +1,7 @@
-# Set firewall status to Active or InActive for the main
-# firewall service. If you want to disable the firewall,
-# set this to 'InActive' and set the overide firewall
-# to Active for the individual applications
-firewall:
-  firewalld:
-    status: 'Active'
-    default_zone: 'internal'
-
 # Override host options
 # Elasticsearch docs https://www.elastic.co/guide/en/elasticsearch/reference/index.html
 elasticsearch:
   lookup:
-    firewall:
-      firewalld:
-        status: 'Active'
     elasticsearch:
       repo_version: '5.x' # Version and baseurl both change: 2.x and 2.x/centos or 5.x and 5.x/yum
       repo_baseurl: 'https://artifacts.elastic.co/packages/5.x/yum'
